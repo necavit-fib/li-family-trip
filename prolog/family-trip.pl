@@ -24,11 +24,6 @@ msubset([E|Tail], [E|NTail]):-
 msubset([_|Tail], NTail):-
   msubset(Tail, NTail).
 
-compliesInterests([],_).
-compliesInterests([Interest|Tail],Union):-
-	member(Interest,Union),
-	compliesInterests(Tail,Union).
-
 unionAttractions([],[]).
 unionAttractions([City|Tail],Union):-
 	attractions(City,Attractions),
@@ -42,6 +37,5 @@ solve:-
 	msubset(Cities,Selected),
 	length(Selected,N),
 	unionAttractions(Selected,Union),
-	%subset(Interests, Union),
-	compliesInterests(Interests,Union),
+	subset(Interests, Union),
 	write(N), write(' cities: '), write(Selected), nl, halt.
