@@ -1,17 +1,17 @@
 
 cities([paris,bangkok,montevideo,windhoek,male,delhi,reunion,lima,banff]).
 
-interests([paisatges,cultura,etnies,gastronomia,esport,relax]).
+interests([landscapes,culture,ethnics,gastronomy,sport,relax]).
 
-attractions( paris,     [cultura,gastronomia]      ).
-attractions( bangkok,   [paisatges,relax,esport]   ).
-attractions( montevideo,[gastronomia,relax]        ).
-attractions( windhoek,  [etnies,paisatges]         ).
-attractions( male,      [paisatges,relax,esport]   ).
-attractions( delhi,     [cultura,etnies]           ).
-attractions( reunion,   [esport,relax,gastronomia] ).
-attractions( lima,      [paisatges,esport,cultura] ).
-attractions( banff,     [esport,paisatges]         ).
+attractions( paris,     [culture,gastronomy]      ).
+attractions( bangkok,   [landscapes,relax,sport]   ).
+attractions( montevideo,[gastronomy,relax]        ).
+attractions( windhoek,  [ethnics,landscapes]         ).
+attractions( male,      [landscapes,relax,sport]   ).
+attractions( delhi,     [culture,ethnics]           ).
+attractions( reunion,   [sport,relax,gastronomy] ).
+attractions( lima,      [landscapes,sport,culture] ).
+attractions( banff,     [sport,landscapes]         ).
 
 nat(0).
 nat(N):-
