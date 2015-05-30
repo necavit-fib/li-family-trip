@@ -9,6 +9,13 @@
  */
 
 /*
+ * DYNAMIC VARIABLES
+ */
+
+:-dynamic(varNumber/3).
+:-dynamic(maxCities/1).
+
+/*
  * INSTANCE
  */
 
@@ -31,34 +38,35 @@ attractions( banff,     [sport,landscapes]         ).
  */
 
 symbolicOutput(0).
-k(3).
+%maxCities(3).
 
 nat(0).
 nat(N):-
 	nat(X),
 	N is X + 1.
 
-writeClauses :-
+writeClauses:-
 	constrainNumberOfCities,
 	constrainInterests.
 
 constrainNumberOfCities:-
-	k(K),
+	maxCities(K),
+	write(user_error,'  constraining cities to K = '), write(user_error,K), nl(user_error),
 	cities(Cities),
-	atMostKList(Cities,K).
-constrainNumberOfCities.
+	numericCities(Cities,NumericCities),
+	atMostKList(NumericCities,K).
 
 constrainInterests:-
 	interests(Interests),
 	constrainInterestsList(Interests).
-constrainInterests.
 
 constrainInterestsList([]).
 constrainInterestsList([Interest|Rest]):-
+	constrainInterestsList(Rest),
 	cities(Cities),
 	citiesWithAttraction(Interest,Cities,CitiesWithInterest),
-	writeClause(CitiesWithInterest), %ALO
-	constrainInterestsList(Rest).
+	numericCities(CitiesWithInterest,NumericCities),
+	writeClause(NumericCities). %ALO
 
 citiesWithAttraction(_,[],[]).
 citiesWithAttraction(Interest,[City|Tail],CitiesWithAttraction):-
@@ -69,6 +77,20 @@ citiesWithAttraction(Interest,[City|Tail],CitiesWithAttraction):-
 citiesWithAttraction(Interest,[_|Tail],CitiesWithAttraction):-
 	citiesWithAttraction(Interest,Tail,CitiesWithAttraction).
 
+numericCities([],[]).
+numericCities([City|Tail],Numeric):-
+	numericCities(Tail,Aux),
+	cityToVar(City,Var),
+	append([Var],Aux,Numeric).
+
+cityToVar(City,c-Index):-
+	cities(Cities),
+	member(City,Cities),
+	nth1(Index,Cities,City),!.
+
+varToCity(c-Index,City):-
+	cities(Cities),
+	nth1(Index,Cities,City).
 
 %generic at most K over a list of variables
 atMostKList(L,K) :-
@@ -92,45 +114,60 @@ negateList([Elem|Tail],NVars):-
 negateList([\+Elem|Tail],NVars):-
 	negateList(Tail,Negated),
 	append([Elem],Negated,NVars).
-
-%use to get those elements of L different from the only one in [S]
-rest_list([],_,[]).
-rest_list([X|L],[S],[X|R]) :- X \= S, rest_list(L,[S],R).
-rest_list([X|L],[S],R) :- X = S, rest_list(L,[S],R).
-
-write_implication_clause(H,T) :-
-	%head (H) implies tail (T), and we know [(H -> T) == (¬H v T)], therefore:
-	negateList(H,N),
-	append(N,T,C),
-	writeClause(C).
-
 /*
  * DISPLAY SOLUTION
  */
 
-displaySol([]).
+displaySol([]):- nl.
 displaySol([Nv|S]):-
-	num2var(Nv,City),
-	write(City), nl,
+	num2var(Nv,Var),
+	varToCity(Var,City),
+	write(City), write(', '),
 	displaySol(S).
 
 /*
  * MAIN
  */
 
-:-dynamic(varNumber/3).
 % ========== No need to change the following: =====================================
-main:- symbolicOutput(1), !, writeClauses, halt. % escribir bonito, no ejecutar
-main:-  assert(numClauses(0)), assert(numVars(0)),
+main:- % escribir bonito, no ejecutar
+	symbolicOutput(1), !,
+	writeClauses,
+	halt.
+main:- % ejecutar
+	nat(K),
+	K > 0,
+	assert(maxCities(K)),
+	picosat,
+	extractModel(Model),
+	validModel(Model).
+
+extractModel(Model):-
+	see(model), readModel(Model), seen,
+	unix('rm model'),!.
+
+validModel([]):-
+	maxCities(K),
+	write('model not found for K = '), write(K), nl,
+	retract(maxCities(K)),
+	fail.
+validModel(Model):-
+	length(Model,Length),
+	Length > 0,
+	maxCities(K),
+	write('model FOUND for K = '), write(K), nl,
+	displaySol(Model),
+	halt.
+
+picosat:-
+	assert(numClauses(0)), assert(numVars(0)),
 	tell(clauses), writeClauses, told,
 	tell(header),  writeHeader,  told,
 	unix('cat header clauses > infile.cnf'),
+	% unix('cat infile.cnf'),
 	unix('picosat -v -o model infile.cnf'),
-	unix('rm header'), unix('rm clauses'), unix('rm infile.cnf'),
-	see(model), readModel(M), seen,
-	unix('rm model'),
-	displaySol(M),
-	halt.
+	% unix('cat model'),
+	unix('rm header'), unix('rm clauses'), unix('rm infile.cnf'),!.
 
 var2num(T,N):- hash_term(T,Key), varNumber(Key,T,N),!.
 var2num(T,N):- retract(numVars(N0)), N is N0+1, assert(numVars(N)), hash_term(T,Key),
