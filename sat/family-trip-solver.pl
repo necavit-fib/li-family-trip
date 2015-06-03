@@ -51,7 +51,6 @@ writeClauses:-
 
 constrainNumberOfCities:-
 	maxCities(K),
-	write(user_error,'  constraining cities to K = '), write(user_error,K), nl(user_error),
 	cities(Cities),
 	numericCities(Cities,NumericCities),
 	atMostKList(NumericCities,K).
@@ -128,13 +127,13 @@ displaySol([Nv|S]):-
 /*
  * MAIN
  */
-
-% ========== No need to change the following: =====================================
 main:- % escribir bonito, no ejecutar
 	symbolicOutput(1), !,
 	writeClauses,
 	halt.
 main:- % ejecutar
+	assert(numVars(0)),
+	assert(numClauses(0)),
 	nat(K),
 	K > 0,
 	assert(maxCities(K)),
@@ -148,7 +147,6 @@ extractModel(Model):-
 
 validModel([]):-
 	maxCities(K),
-	write('model not found for K = '), write(K), nl,
 	retract(maxCities(K)),
 	fail.
 validModel(Model):-
@@ -160,11 +158,12 @@ validModel(Model):-
 	halt.
 
 picosat:-
-	assert(numClauses(0)), assert(numVars(0)),
+	retractall(numClauses(_)),
+	assert(numClauses(0)),
 	tell(clauses), writeClauses, told,
 	tell(header),  writeHeader,  told,
 	unix('cat header clauses > infile.cnf'),
-	% unix('cat infile.cnf'),
+	%unix('cat infile.cnf'),
 	unix('picosat -v -o model infile.cnf'),
 	% unix('cat model'),
 	unix('rm header'), unix('rm clauses'), unix('rm infile.cnf'),!.
