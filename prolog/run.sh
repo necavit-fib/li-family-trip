@@ -3,7 +3,7 @@
 # Family Trip automated solver script
 # david.martinez.rodriguez@est.fib.upc.edu
 #
-# June 2015
+# May 2015
 
 # *** environment setting *** #
 export PATH=$PATH:.
