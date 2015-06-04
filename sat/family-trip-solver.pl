@@ -1,19 +1,12 @@
 /*
  * family-trip-solver.pl
  *
- * Solver logic for the Family Trip problem
+ * Solver logic for the Family Trip problem (SAT solver implementation)
  *
  * david.martinez.rodriguez@est.fib.upc.edu
  *
- * May, 2015
+ * June, 2015
  */
-
-/*
- * DYNAMIC VARIABLES
- */
-
-:-dynamic(varNumber/3).
-:-dynamic(maxCities/1).
 
 /*
  * INSTANCE
@@ -34,11 +27,17 @@ attractions( lima,      [landscapes,sport,culture] ).
 attractions( banff,     [sport,landscapes]         ).
 
 /*
- * SOLUTION
+ * DYNAMIC VARIABLES
+ */
+
+:-dynamic(varNumber/3).
+:-dynamic(maxCities/1).
+
+/*
+ * SOLVER
  */
 
 symbolicOutput(0).
-%maxCities(3).
 
 nat(0).
 nat(N):-
@@ -113,6 +112,7 @@ negateList([Elem|Tail],NVars):-
 negateList([\+Elem|Tail],NVars):-
 	negateList(Tail,Negated),
 	append([Elem],Negated,NVars).
+
 /*
  * DISPLAY SOLUTION
  */

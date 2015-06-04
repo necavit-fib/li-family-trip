@@ -1,5 +1,11 @@
 /*
- * Family Trip problem instance file
+ * trip.pl
+ *
+ * Instance file for the Family Trip problem
+ *
+ * david.martinez.rodriguez@est.fib.upc.edu
+ *
+ * June, 2015
  */
 cities([paris,bangkok,montevideo,windhoek,male,delhi,reunion,lima,banff]).
 
