@@ -1,30 +1,12 @@
 /*
- * family-trip-solver.pl
+ * family-trip.pl
  *
- * Solver logic for the Family Trip problem (SAT solver implementation)
+ * Solver logic for the Family Trip problem (SAT solver based implementation)
  *
  * david.martinez.rodriguez@est.fib.upc.edu
  *
  * June, 2015
  */
-
-/*
- * INSTANCE
- */
-
-cities([paris,bangkok,montevideo,windhoek,male,delhi,reunion,lima,banff]).
-
-interests([landscapes,culture,ethnics,gastronomy,sport,relax]).
-
-attractions( paris,     [culture,gastronomy]       ).
-attractions( bangkok,   [landscapes,relax,sport]   ).
-attractions( montevideo,[gastronomy,relax]         ).
-attractions( windhoek,  [ethnics,landscapes]       ).
-attractions( male,      [landscapes,relax,sport]   ).
-attractions( delhi,     [culture,ethnics]          ).
-attractions( reunion,   [sport,relax,gastronomy]   ).
-attractions( lima,      [landscapes,sport,culture] ).
-attractions( banff,     [sport,landscapes]         ).
 
 /*
  * DYNAMIC VARIABLES
@@ -34,10 +16,8 @@ attractions( banff,     [sport,landscapes]         ).
 :-dynamic(maxCities/1).
 
 /*
- * SOLVER
+ * SOLVER LOGIC
  */
-
-symbolicOutput(0).
 
 nat(0).
 nat(N):-
@@ -114,59 +94,53 @@ negateList([\+Elem|Tail],NVars):-
 	append([Elem],Negated,NVars).
 
 /*
- * DISPLAY SOLUTION
- */
-
-displaySol([]):- nl.
-displaySol([Nv|S]):-
-	num2var(Nv,Var),
-	varToCity(Var,City),
-	write(City), write(', '),
-	displaySol(S).
-
-/*
- * MAIN
+ * MAIN PROCEDURE
  */
 main:- % escribir bonito, no ejecutar
 	symbolicOutput(1), !,
 	writeClauses,
 	halt.
 main:- % ejecutar
-	assert(numVars(0)),
-	assert(numClauses(0)),
+  %Initialize dynamic predicates.
+	assert(numVars(0)),	assert(numClauses(0)),
+
+  %For increasing number of cities...
 	nat(K),
 	K > 0,
+
+  %assert the number of maximum cities to be visited...
 	assert(maxCities(K)),
+
+  %encode the problem, execute the SAT solver...
 	picosat,
-	extractModel(Model),
+
+  %and validate the model.
 	validModel(Model).
 
-extractModel(Model):-
-	see(model), readModel(Model), seen,
-	unix('rm model'),!.
-
 validModel([]):-
+  %if no model was found, retract the number of cities and fail (force backtrack)
 	maxCities(K),
-	retract(maxCities(K)),
+	retractall(maxCities(_)),
 	fail.
 validModel(Model):-
+  %if a model is found, display the solution and halt the execution
 	length(Model,Length),
 	Length > 0,
-	maxCities(K),
-	write('model FOUND for K = '), write(K), nl,
-	displaySol(Model),
+  displaySol(Model),
 	halt.
 
 picosat:-
-	retractall(numClauses(_)),
-	assert(numClauses(0)),
+	retractall(numClauses(_)), retractall(numVars(_)),
+	assert(numClauses(0)), assert(numVars(0)),
 	tell(clauses), writeClauses, told,
 	tell(header),  writeHeader,  told,
 	unix('cat header clauses > infile.cnf'),
-	%unix('cat infile.cnf'),
 	unix('picosat -v -o model infile.cnf'),
-	% unix('cat model'),
-	unix('rm header'), unix('rm clauses'), unix('rm infile.cnf'),!.
+	unix('rm header'), unix('rm clauses'), unix('rm infile.cnf'),
+  see(model), readModel(Model), seen,
+	unix('rm model'),!. %the cut operator is needed here in order to stop Prolog
+                      % from trying to execute the previous commands again under
+                      % bactracking (this is, when no solution was found)
 
 var2num(T,N):- hash_term(T,Key), varNumber(Key,T,N),!.
 var2num(T,N):- retract(numVars(N0)), N is N0+1, assert(numVars(N)), hash_term(T,Key),
@@ -197,3 +171,7 @@ readWord(99,W):- repeat, get_code(Ch), member(Ch,[-1,10]), !, get_code(Ch1), rea
 readWord(-1,_):-!, fail. %end of file
 readWord(C,[]):- member(C,[10,32]), !. % newline or white space marks end of word
 readWord(Char,[Char|W]):- get_code(Char1), readWord(Char1,W), !.
+
+/*
+ * End of family-trip.pl
+ */

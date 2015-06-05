@@ -20,3 +20,7 @@ attractions( delhi,     [culture,ethnics]          ).
 attractions( reunion,   [sport,relax,gastronomy]   ).
 attractions( lima,      [landscapes,sport,culture] ).
 attractions( banff,     [sport,landscapes]         ).
+
+/*
+ * End of trip.pl
+ */
