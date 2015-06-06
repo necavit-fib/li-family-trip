@@ -8,17 +8,25 @@
  * June, 2015
  */
 
-displaySolution(List):-
-  write('Trip interests can be satisfied!'), nl,
-  write('You need to visit '), write(N),
-  write(' cities: '), writeCities(List).
+writeCitiesTail([]):- nl.
+writeCitiesTail([NumericVar|Tail]):-
+  num2var(NumericVar,Var),
+  varToCity(Var,City),
+  write(', '), write(City),
+  writeCitiesTail(Tail).
 
 writeCities([]):- nl.
-writeCities([Nv|S]):-
- 	num2var(Nv,Var),
- 	varToCity(Var,City),
- 	write(City), write(', '),
- 	displaySol(S).
+writeCities([NumericVar|Tail]):-
+  num2var(NumericVar,Var),
+  varToCity(Var,City),
+  write(City),
+  writeCitiesTail(Tail).
+
+displaySolution(List):-
+  length(List,N),
+  write('Trip interests can be satisfied!'), nl,
+  write('You need to visit '), write(N), write(' cities: '),
+  writeCities(List).
 
 /*
  * End of display-solution.pl

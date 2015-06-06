@@ -112,7 +112,7 @@ main:- % ejecutar
 	assert(maxCities(K)),
 
   %encode the problem, execute the SAT solver...
-	picosat,
+	picosat(Model),
 
   %and validate the model.
 	validModel(Model).
@@ -120,18 +120,18 @@ main:- % ejecutar
 validModel([]):-
   %if no model was found, retract the number of cities and fail (force backtrack)
 	maxCities(K),
-	retractall(maxCities(_)),
+	retractall(maxCities(K)),
 	fail.
 validModel(Model):-
   %if a model is found, display the solution and halt the execution
 	length(Model,Length),
 	Length > 0,
-  displaySol(Model),
+  displaySolution(Model),
 	halt.
 
-picosat:-
-	retractall(numClauses(_)), retractall(numVars(_)),
-	assert(numClauses(0)), assert(numVars(0)),
+picosat(Model):-
+	retractall(numClauses(_)),
+	assert(numClauses(0)),
 	tell(clauses), writeClauses, told,
 	tell(header),  writeHeader,  told,
 	unix('cat header clauses > infile.cnf'),

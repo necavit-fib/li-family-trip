@@ -105,15 +105,16 @@ swipl -O -g main --stand_alone=true -o $solver_exe -c $solver_file
 echo "executing the solver..."
 #if symbolic output was set, execute and send output to output_file
 if $symbolic ; then
-	$solver_exe > $output 2> /dev/null
+	$solver_exe > $output
 	echo "DONE executing solver!"
 	echo "see $output to check the generated clauses"
 else #if symbolic output was not set, display the solution
 	rm -f solution.txt
-	$solver_exe > $solution_file 2> /dev/null
+	$solver_exe > $solution_file
 	echo "DONE executing solver!"
 	echo "solution has been stored in $solution_file"
 	echo "solution found by the solver:"
 	echo ""
 	cat $solution_file
+	echo ""
 fi
