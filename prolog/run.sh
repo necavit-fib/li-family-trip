@@ -53,5 +53,7 @@ swipl -O -g main --stand_alone=true -o $solver_executable_file -c $solver_file
 
 #execute solver
 echo "executing solver..."
-$solver_executable_file 2> /dev/null
+echo ""
+$solver_executable_file
+echo ""
 echo "DONE executing solver!"
